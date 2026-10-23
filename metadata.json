@@ -1,0 +1,6 @@
+{
+  "name": "MatíasBot - Orientación y Admisiones UJMD",
+  "description": "Agente Oficial de Orientación Vocacional y Admisiones de la Escuela de Ciencias de la Comunicación de la Universidad Dr. José Matías Delgado (UJMD).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
