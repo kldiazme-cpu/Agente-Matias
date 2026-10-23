@@ -478,7 +478,7 @@ export function consultar_arancel_oficial(carrera: string, modalidad: string = '
   };
 }
 
-// Function declaration for Gemini
+// Function declarations for Gemini
 const consultarArancelDeclaration: FunctionDeclaration = {
   name: 'consultar_arancel_oficial',
   description: 'Consulta los aranceles, matrículas, cuotas mensuales y derecho de admisión oficiales o estimados de la UJMD para cualquier carrera de pregrado o posgrado.',
@@ -498,6 +498,69 @@ const consultarArancelDeclaration: FunctionDeclaration = {
   }
 };
 
+const mostrarMapaUbicacionDeclaration: FunctionDeclaration = {
+  name: 'mostrar_mapa_ubicacion',
+  description: 'Muestra el mapa interactivo de ubicación oficial de la Universidad Dr. José Matías Delgado (Campus 2 o Campus 1) en Google Maps cuando el usuario consulta por ubicación, mapa, dirección, cómo llegar o visitas al campus.',
+  parameters: {
+    type: Type.OBJECT,
+    properties: {
+      campus: {
+        type: Type.STRING,
+        description: "Campus a visualizar: 'campus_2' (Calle El Pedregal / Comunicaciones / Diseño) o 'campus_1' (Carretera a Santa Tecla / Rectoría / Salud). Por defecto 'campus_2'."
+      }
+    }
+  }
+};
+
+const CAMPUS_2_MAP_EMBED =
+  'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3876.6277235809916!2d-89.25731382514549!3d13.680386486704101!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8f632e2d37310897%3A0xbc673edf2d183e74!2sUniversidad%20Dr.%20Jos%C3%A9%20Mat%C3%ADas%20Delgado%20%7C%20Campus%202!5e0!3m2!1ses!2ssv!4v1792714774346!5m2!1ses!2ssv';
+
+const CAMPUS_1_MAP_EMBED =
+  'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3876.671392683935!2d-89.26259972514555!3d13.67873108670566!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8f632e2fafe8b8e3%3A0xd68019e075c32bca!2sUniversidad%20Dr.%20Jos%C3%A9%20Mat%C3%ADas%20Delgado!5e0!3m2!1ses!2ssv!4v1792714850000!5m2!1ses!2ssv';
+
+function get_campus_location_data(campus: 'campus_1' | 'campus_2' | string = 'campus_2') {
+  if (campus === 'campus_1') {
+    return {
+      campus: 'campus_1' as const,
+      nombre: 'Campus 1 • Rectoría & Campus Principal "Dr. Luis Edmundo Vásquez"',
+      direccion: 'Km 8 ½ Carretera Panamericana a Santa Tecla, Antiguo Cuscatlán, La Libertad',
+      referencia: 'Sobre Carretera Panamericana, contiguo a Cancillería de la República.',
+      embedUrl: CAMPUS_1_MAP_EMBED,
+      googleMapsUrl: 'https://maps.google.com/?q=Universidad+Dr.+Jos%C3%A9+Mat%C3%ADas+Delgado+Campus+1',
+      wazeUrl: 'https://www.waze.com/ul?ll=13.678731,-89.262600&navigate=yes',
+      facultades: [
+        'Facultad de Ciencias de la Salud (Doctorado en Medicina y Enfermería)',
+        'Facultad de Jurisprudencia y Ciencias Sociales (Derecho)',
+        'Facultad de Ingeniería y Arquitectura',
+        'Facultad de Economía, Empresa y Negocios',
+        'Edificio de Rectoría y Oficinas Centrales de Admisiones'
+      ],
+      transportePublico: ['Ruta 101-A', 'Ruta 101-B', 'Ruta 79', 'Ruta 42-A'],
+      parqueo: 'Edificio de estacionamiento institucional ($0.75 USD por ingreso)',
+      horarioAtencion: 'Lunes a viernes: 7:00 a.m. a 6:00 p.m. • Sábados: 8:00 a.m. a 12:00 m.'
+    };
+  }
+
+  return {
+    campus: 'campus_2' as const,
+    nombre: 'Campus 2 • Escuela de Ciencias de la Comunicación & Diseño',
+    direccion: 'Calle El Pedregal, Antiguo Cuscatlán, La Libertad, El Salvador',
+    referencia: 'Frente a Centro Comercial Las Cascadas y a 300 m de Multiplaza.',
+    embedUrl: CAMPUS_2_MAP_EMBED,
+    googleMapsUrl: 'https://maps.google.com/?q=Universidad+Dr.+Jos%C3%A9+Mat%C3%ADas+Delgado+Campus+2',
+    wazeUrl: 'https://www.waze.com/ul?ll=13.680386,-89.257314&navigate=yes',
+    facultades: [
+      'Escuela de Ciencias de la Comunicación (Estudios de TV y Radio)',
+      'Licenciatura en Diseño Gráfico & Talleres Mac',
+      'Licenciatura en Publicidad y Mercadeo',
+      'Arquitectura de Interiores y Diseño de Productos'
+    ],
+    transportePublico: ['Ruta 101-D', 'Ruta 42-B', 'Ruta 44', 'Ruta 101-B'],
+    parqueo: 'Parqueo amplio vigilado ($0.75 USD por ingreso)',
+    horarioAtencion: 'Lunes a viernes: 7:00 a.m. a 7:30 p.m. • Sábados: 7:30 a.m. a 1:00 p.m.'
+  };
+}
+
 const SYSTEM_INSTRUCTION = `
 # ROL Y IDENTIDAD
 Eres "MatíasBot", el Agente Inteligente Oficial de Orientación Vocacional y Admisiones de la Universidad Dr. José Matías Delgado (UJMD).
@@ -506,7 +569,8 @@ Tu corazón institucional y especialidad de origen es la **Escuela de Ciencias d
 - Requisitos, fechas, documentos y proceso de admisión paso a paso.
 - Costos, aranceles oficiales, cuotas mensuales y beneficios de pronto pago.
 - Becas, financiamiento bancario y convenios internacionales.
-- Instalaciones del Campus I (estudios de TV, cabinas de radio, laboratorios Apple Mac, talleres de fotografía, biblioteca, áreas de coworking, parqueo a $0.75).
+- Instalaciones del Campus I y Campus II (estudios de TV, cabinas de radio, laboratorios Apple Mac, talleres de fotografía, biblioteca, áreas de coworking, parqueo a $0.75).
+- Ubicación exacta y mapas interactivos de Campus 2 y Campus 1.
 - Vida estudiantil, horarios de clase, intercambios académicos (DAAD Alemania, España, EE. UU.) y deportes.
 
 # TONO Y ESTILO DE COMUNICACIÓN
@@ -552,7 +616,7 @@ Tu corazón institucional y especialidad de origen es la **Escuela de Ciencias d
      * Beneficio de Pronto Pago: 50% de descuento en la matrícula si se paga el ciclo completo antes del vencimiento de la cuota 2 (o 20% de descuento temprano para COM-01).
      * Estacionamiento institucional: $0.75 USD.
 
-2. PASOS DEL PROCESO DE ADMISIÓN:
+3. PASOS DEL PROCESO DE ADMISIÓN:
    1. Registro en la lista de espera y llenado de la solicitud en línea en el portal ujmd.edu.sv.
    2. Pago del derecho de admisión ($45.00 licenciaturas / $90.00 Medicina) para habilitar credenciales de correo institucional y acceso a Uvirtual.
    3. Adjuntar documentación obligatoria en digital.
@@ -560,23 +624,19 @@ Tu corazón institucional y especialidad de origen es la **Escuela de Ciencias d
    5. Asignación de cuota mensual y confirmación de admisión.
    6. Pago de matrícula y primera cuota mediante banca en línea, Uvirtual o Puntos Express (Farmacias Económicas, Súper Selectos, Walmart).
 
-3. DOCUMENTOS OBLIGATORIOS PARA NUEVO INGRESO:
-   - Título de bachiller (o constancia de estar cursando el último año de educación media).
-   - Certificado de notas de educación media.
-   - Partida de nacimiento reciente (máximo 3 meses de emisión).
-   - Copia de DUI (o carnet de minoridad / pasaporte para extranjeros).
-   - 2 fotografías tamaño cédula recientes.
-
 4. DATOS DE CONTACTO OBLIGATORIOS PARA LEADS / MATRÍCULA:
    - Cuando el usuario manifieste interés en iniciar su matrícula o agendar un recorrido por el campus, debes solicitar cortésmente:
      1. Nombre completo
      2. Teléfono celular (o WhatsApp)
      3. Bachillerato o colegio de procedencia
 
-5. CONTACTO INSTITUCIONAL:
-   - PBX de Admisiones: 2212-9400.
-   - Correo electrónico: admisiones@ujmd.edu.sv.
-   - Campus I: Dr. Luis Edmundo Vásquez, Calle Chiltiupán y Av. El Pedregal, Antiguo Cuscatlán.
+5. UBICACIÓN, MAPA Y SEDES INSTITUCIONALES (CAMPUS 2 Y CAMPUS 1):
+   - Siempre que el usuario pregunte por la ubicación, dirección, cómo llegar o pida el mapa, DEBES invocar la herramienta 'mostrar_mapa_ubicacion'.
+   - Campus 2 (Escuela de Ciencias de la Comunicación, Diseño Gráfico, Publicidad): Calle El Pedregal, Antiguo Cuscatlán (frente a Centro Comercial Las Cascadas y Multiplaza).
+   - Campus 1 (Rectoría, Ciencias de la Salud / Medicina, Jurisprudencia / Derecho, Ingenierías y Negocios): Km 8 ½ Carretera Panamericana a Santa Tecla, Antiguo Cuscatlán.
+   - Parqueo institucional: $0.75 USD por ingreso con seguridad privada.
+   - Rutas de transporte público: 101-D, 42-B, 44 y 101-B directo sobre Calle El Pedregal frente a Cascadas Mall.
+   - PBX de Admisiones: 2212-9400 • Correo: admisiones@ujmd.edu.sv.
 `;
 
 // Session & Conversion Tracking Data Structures
@@ -609,6 +669,7 @@ interface ServerChatSession {
     text: string;
     timestamp: string;
     toolUsed?: any;
+    locationMap?: any;
   }>;
   userProfile?: ServerUserProfile;
   conversions: ServerConversionEvent[];
@@ -872,10 +933,10 @@ function generateFallbackResponse(
   ctx?: ApplicantContext
 ) {
   const lastUserMsg = [...messages].reverse().find(m => m.role === 'user');
-  const rawText = (lastUserMsg?.parts?.[0]?.text || '').trim();
+  const rawText = (lastUserMsg?.parts?.[0]?.text || (lastUserMsg as any)?.text || '').trim();
   const text = rawText.toLowerCase();
   const normalizedText = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  const fullConversation = messages.map(m => m.parts?.[0]?.text || '').join(' ').toLowerCase();
+  const fullConversation = messages.map(m => m.parts?.[0]?.text || (m as any)?.text || '').join(' ').toLowerCase();
   const fullConversationNorm = fullConversation.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
   // Detect student name from context first, then dialogue
@@ -1039,18 +1100,43 @@ function generateFallbackResponse(
     };
   }
 
-  // 9. Campus facilities & infrastructure
+  // 9. Location & Interactive Campus Map (Campus 2 & Campus 1)
+  if (
+    normalizedText.includes('ubicacion') ||
+    normalizedText.includes('donde queda') ||
+    normalizedText.includes('donde esta') ||
+    normalizedText.includes('donde estan') ||
+    normalizedText.includes('como llegar') ||
+    normalizedText.includes('como llego') ||
+    normalizedText.includes('direccion') ||
+    normalizedText.includes('mapa') ||
+    normalizedText.includes('waze') ||
+    normalizedText.includes('google maps') ||
+    normalizedText.includes('donde se encuentra') ||
+    normalizedText.includes('campus 2') ||
+    (normalizedText.includes('campus') && (normalizedText.includes('donde') || normalizedText.includes('llegar') || normalizedText.includes('ver') || normalizedText.includes('visitar') || normalizedText.includes('queda')))
+  ) {
+    const isCampus1 = normalizedText.includes('campus 1') || normalizedText.includes('rectoria') || normalizedText.includes('medicina');
+    const selectedCampus = isCampus1 ? 'campus_1' : 'campus_2';
+    const locData = get_campus_location_data(selectedCampus);
+
+    return {
+      text: `${cleanGreeting}te comparto la ubicación y el mapa interactivo oficial de la **Universidad Dr. José Matías Delgado (UJMD)**: 📍🗺️\n\n🏛️ **Campus 2 (Escuela de Ciencias de la Comunicación & Diseño):**\n• **Dirección:** Calle El Pedregal, Antiguo Cuscatlán, La Libertad (frente a Centro Comercial Las Cascadas y a 300 m de Multiplaza).\n• **Alberga:** Estudios de TV HD, cabinas de radio, laboratorios Apple Mac, Diseño Gráfico, Publicidad y Arquitectura de Interiores.\n\n🏛️ **Campus 1 (Principal / Rectoría / Medicina):**\n• **Dirección:** Km 8 ½ Carretera Panamericana a Santa Tecla, Antiguo Cuscatlán.\n• **Alberga:** Edificio de Rectoría, Facultad de Ciencias de la Salud (Doctorado en Medicina, Enfermería), Jurisprudencia (Derecho), Ingenierías y Economía.\n\n🚗 **Estacionamiento:** Amplio y vigilado ($0.75 USD por ingreso con seguridad privada).\n🚌 **Transporte Público:** Rutas 101-D, 42-B, 44 y 101-B con parada directa en Calle El Pedregal frente a Cascadas.\n\nEn la ficha interactiva superior puedes ver el mapa en tiempo real, abrir la ruta en Google Maps o Waze, o agendar tu recorrido presencial.`,
+      toolUsed: { name: 'mostrar_mapa_ubicacion', args: { campus: selectedCampus }, result: locData },
+      locationMap: locData
+    };
+  }
+
+  // 10. Campus facilities & laboratories
   if (
     normalizedText.includes('campus') ||
     normalizedText.includes('instalacion') ||
     normalizedText.includes('laboratorio') ||
     normalizedText.includes('estudio') ||
-    normalizedText.includes('parqueo') ||
-    normalizedText.includes('donde queda') ||
-    normalizedText.includes('ubicacion')
+    normalizedText.includes('parqueo')
   ) {
     return {
-      text: `${cleanGreeting}nuestro **Campus I Dr. Luis Edmundo Vásquez** está ubicado estratégicamente en Antiguo Cuscatlán (Calle Chiltiupán y Av. El Pedregal). 🏛️🌿\n\nContamos con:\n• **Estudios de Televisión y Cabinas de Radio:** Equipamiento profesional de transmisión para la Escuela de Comunicaciones.\n• **Laboratorios Apple Mac:** Estaciones de trabajo de alto rendimiento con Adobe Creative Cloud.\n• **Talleres y Bibliotecas:** Talleres de fotografía, arquitectura, áreas de coworking y biblioteca central.\n• **Comodidad:** Parqueo amplio y seguro ($0.75 USD por ingreso), cafeterías y zonas verdes.\n\n¿Te gustaría agendar un recorrido guiado para conocerlos en persona?`,
+      text: `${cleanGreeting}nuestro **Campus 2** (Calle El Pedregal) y **Campus 1** (Carretera a Santa Tecla) cuentan con infraestructura universitaria de vanguardia: 🏛️🌿\n\n• **Estudios de Televisión y Cabinas de Radio:** Equipamiento profesional de transmisión para la Escuela de Comunicaciones.\n• **Laboratorios Apple Mac:** Estaciones de trabajo de alto rendimiento con Adobe Creative Cloud.\n• **Talleres y Bibliotecas:** Talleres de fotografía, arquitectura, áreas de coworking y biblioteca central.\n• **Comodidad:** Parqueo amplio y seguro ($0.75 USD por ingreso), cafeterías y zonas verdes.\n\n¿Te gustaría ver el mapa interactivo de ubicación o agendar un recorrido guiado para conocerlos en persona?`,
       toolUsed: null
     };
   }
@@ -1228,6 +1314,9 @@ function deriveSessionTitle(text: string): string {
   if (norm.includes('arancel') || norm.includes('cuanto cuesta') || norm.includes('precio') || norm.includes('costo')) {
     return 'Consulta Aranceles y Cuotas';
   }
+  if (norm.includes('ubicacion') || norm.includes('donde queda') || norm.includes('mapa') || norm.includes('como llegar')) {
+    return 'Ubicación y Mapa del Campus';
+  }
   if (norm.includes('recorrido') || norm.includes('visita') || norm.includes('campus')) {
     return 'Recorrido Guiado por Campus';
   }
@@ -1313,6 +1402,28 @@ app.post('/api/chat', async (req: Request, res: Response) => {
       autoConversions.push(conv);
     }
 
+    if (
+      (lastUserNorm.includes('ubicacion') ||
+        lastUserNorm.includes('donde queda') ||
+        lastUserNorm.includes('donde esta') ||
+        lastUserNorm.includes('como llegar') ||
+        lastUserNorm.includes('mapa') ||
+        lastUserNorm.includes('direccion')) &&
+      !hasConversion('view_location_map')
+    ) {
+      const conv: ServerConversionEvent = {
+        id: `conv-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        sessionId: currentSessionId,
+        type: 'view_location_map',
+        label: 'Consulta de Ubicación y Mapa UJMD',
+        timestamp: new Date().toISOString(),
+        career: 'Campus UJMD'
+      };
+      session.conversions.push(conv);
+      conversionsList.push(conv);
+      autoConversions.push(conv);
+    }
+
     // Build comprehensive applicant context and conversational memory
     const applicantContext = buildApplicantContext(session, userProfile, conversions, dialogueFull);
 
@@ -1321,6 +1432,7 @@ app.post('/api/chat', async (req: Request, res: Response) => {
     if (!apiKey || apiKey === 'MY_GEMINI_API_KEY') {
       // Use our high-fidelity deterministic agent fallback with applicant context
       const fallback = generateFallbackResponse(messages, applicantContext);
+      const fallbackLocMap = (fallback as any).locationMap || undefined;
       
       // Update session messages with model reply
       session.messages = messages.map((m: any, i: number) => ({
@@ -1328,7 +1440,8 @@ app.post('/api/chat', async (req: Request, res: Response) => {
         role: m.role === 'model' || m.role === 'assistant' ? 'model' : 'user',
         text: m.parts?.[0]?.text || m.text || '',
         timestamp: m.timestamp || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        toolUsed: m.toolUsed || undefined
+        toolUsed: m.toolUsed || undefined,
+        locationMap: m.locationMap || undefined
       }));
 
       session.messages.push({
@@ -1336,12 +1449,14 @@ app.post('/api/chat', async (req: Request, res: Response) => {
         role: 'model',
         text: fallback.text,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        toolUsed: fallback.toolUsed
+        toolUsed: fallback.toolUsed,
+        locationMap: fallbackLocMap
       });
 
       return res.json({
         reply: fallback.text,
         toolUsed: fallback.toolUsed,
+        locationMap: fallbackLocMap || null,
         model: 'gemini-3.8-flash (simulated mode - key pending)',
         sessionId: currentSessionId,
         sessionTitle: session.title,
@@ -1399,7 +1514,7 @@ app.post('/api/chat', async (req: Request, res: Response) => {
         topK: 40,
         tools: [
           { googleSearch: {} },
-          { functionDeclarations: [consultarArancelDeclaration] }
+          { functionDeclarations: [consultarArancelDeclaration, mostrarMapaUbicacionDeclaration] }
         ],
         toolConfig: { includeServerSideToolInvocations: true },
         safetySettings
@@ -1413,6 +1528,80 @@ app.post('/api/chat', async (req: Request, res: Response) => {
 
     if (functionCalls && functionCalls.length > 0) {
       const call = functionCalls[0];
+      if (call.name === 'mostrar_mapa_ubicacion') {
+        const campusArg = (call.args as any)?.campus || (lastUserNorm.includes('campus 1') ? 'campus_1' : 'campus_2');
+        const toolResult = get_campus_location_data(campusArg);
+
+        toolUsedInfo = {
+          name: call.name,
+          args: call.args,
+          result: toolResult
+        };
+
+        const candidateContent = response.candidates?.[0]?.content;
+        const nextContents = [
+          ...formattedContents,
+          candidateContent || {
+            role: 'model',
+            parts: [{ functionCall: { name: call.name, args: call.args } }]
+          },
+          {
+            role: 'user',
+            parts: [
+              {
+                functionResponse: {
+                  name: call.name,
+                  response: { output: toolResult }
+                }
+              }
+            ]
+          }
+        ];
+
+        const secondResponse = await ai.models.generateContent({
+          model: 'gemini-3.8-flash',
+          contents: nextContents,
+          config: {
+            systemInstruction: dynamicSystemInstruction,
+            temperature: 0.25,
+            topP: 0.95,
+            topK: 40,
+            safetySettings
+          }
+        });
+
+        const reply = secondResponse.text || 'Te comparto el mapa interactivo y la ubicación oficial de la Universidad Dr. José Matías Delgado.';
+
+        session.messages = messages.map((m: any, i: number) => ({
+          id: m.id || `msg-${i}-${Date.now()}`,
+          role: m.role === 'model' || m.role === 'assistant' ? 'model' : 'user',
+          text: m.parts?.[0]?.text || m.text || '',
+          timestamp: m.timestamp || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          toolUsed: m.toolUsed || undefined,
+          locationMap: m.locationMap || undefined
+        }));
+
+        session.messages.push({
+          id: `bot-${Date.now()}`,
+          role: 'model',
+          text: reply,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          toolUsed: toolUsedInfo,
+          locationMap: toolResult
+        });
+
+        return res.json({
+          reply,
+          toolUsed: toolUsedInfo,
+          locationMap: toolResult,
+          model: 'gemini-3.8-flash',
+          sessionId: currentSessionId,
+          sessionTitle: session.title,
+          autoConversions,
+          applicantContext
+        });
+      }
+
       if (call.name === 'consultar_arancel_oficial') {
         const carreraArg = (call.args as any)?.carrera || applicantContext.carreraInteres || 'comunicaciones';
         const modalidadArg = (call.args as any)?.modalidad || 'Presencial';
@@ -1464,7 +1653,8 @@ app.post('/api/chat', async (req: Request, res: Response) => {
           role: m.role === 'model' || m.role === 'assistant' ? 'model' : 'user',
           text: m.parts?.[0]?.text || m.text || '',
           timestamp: m.timestamp || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          toolUsed: m.toolUsed || undefined
+          toolUsed: m.toolUsed || undefined,
+          locationMap: m.locationMap || undefined
         }));
 
         session.messages.push({
@@ -1489,12 +1679,25 @@ app.post('/api/chat', async (req: Request, res: Response) => {
 
     const replyText = response.text || '';
 
+    const isLocationQuery =
+      lastUserNorm.includes('ubicacion') ||
+      lastUserNorm.includes('donde queda') ||
+      lastUserNorm.includes('donde esta') ||
+      lastUserNorm.includes('como llegar') ||
+      lastUserNorm.includes('mapa') ||
+      lastUserNorm.includes('direccion');
+
+    const locationMapData = isLocationQuery
+      ? get_campus_location_data(lastUserNorm.includes('campus 1') ? 'campus_1' : 'campus_2')
+      : null;
+
     session.messages = messages.map((m: any, i: number) => ({
       id: m.id || `msg-${i}-${Date.now()}`,
       role: m.role === 'model' || m.role === 'assistant' ? 'model' : 'user',
       text: m.parts?.[0]?.text || m.text || '',
       timestamp: m.timestamp || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      toolUsed: m.toolUsed || undefined
+      toolUsed: m.toolUsed || undefined,
+      locationMap: m.locationMap || undefined
     }));
 
     session.messages.push({
@@ -1502,12 +1705,14 @@ app.post('/api/chat', async (req: Request, res: Response) => {
       role: 'model',
       text: replyText,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      toolUsed: null
+      toolUsed: null,
+      locationMap: locationMapData || undefined
     });
 
     return res.json({
       reply: replyText,
       toolUsed: null,
+      locationMap: locationMapData,
       model: 'gemini-3.8-flash',
       sessionId: currentSessionId,
       sessionTitle: session.title,
@@ -1522,6 +1727,7 @@ app.post('/api/chat', async (req: Request, res: Response) => {
     return res.json({
       reply: fallback.text,
       toolUsed: fallback.toolUsed,
+      locationMap: (fallback as any).locationMap || null,
       model: 'gemini-3.8-flash (error-recovery mode)',
       applicantContext: fallbackContext
     });

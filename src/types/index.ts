@@ -1,43 +1,27 @@
+export interface LocationMapData {
+  campus: 'campus_2' | 'campus_1' | 'ambos';
+  nombre: string;
+  direccion: string;
+  referencia: string;
+  embedUrl: string;
+  googleMapsUrl: string;
+  wazeUrl: string;
+  facultades: string[];
+  transportePublico?: string[];
+  parqueo?: string;
+  horarioAtencion?: string;
+}
+
 export interface Message {
   id: string;
   role: 'user' | 'model';
   text: string;
   timestamp: string;
+  locationMap?: LocationMapData | null;
   toolUsed?: {
     name: string;
     args?: any;
-    result?: {
-      estado: string;
-      carrera: string;
-      codigo?: string;
-      duracion_anios?: number;
-      ciclos_totales?: number;
-      facultad?: string;
-      modalidad?: string;
-      costos?: {
-        matricula_ordinaria: number;
-        cuota_mensual_base: number;
-        descuento_temprano_porcentaje?: number;
-        fecha_limite_descuento?: string;
-      };
-      matricula_usd: number;
-      cuota_mensual_usd: number;
-      cuotas_por_ciclo: number;
-      total_ciclo_usd: number;
-      derecho_admision_usd?: number;
-      descuento_temprano_porcentaje?: number;
-      fecha_limite_descuento?: string;
-      beneficio_pronto_pago?: string;
-      requisitos_ingreso?: string[];
-      canales_atencion_oficial?: {
-        correo?: string;
-        whatsapp_oficial?: string;
-        horario?: string;
-      };
-      periodo: string;
-      moneda: string;
-      nota?: string;
-    };
+    result?: any;
   } | null;
 }
 
@@ -74,6 +58,7 @@ export interface LeadFormData {
 export type ConversionType =
   | 'view_aranceles'
   | 'view_pensum_com01'
+  | 'view_location_map'
   | 'vocational_test_completed'
   | 'official_contact_click'
   | 'lead_captured'

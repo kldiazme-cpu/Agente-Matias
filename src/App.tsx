@@ -267,7 +267,8 @@ export default function App() {
         role: 'model',
         text: data.reply || 'Disculpa, no dispongo de ese dato en este momento. Te invito a comunicarte con Admisiones al PBX 2212-9400 o escribir a admisiones@ujmd.edu.sv.',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        toolUsed: data.toolUsed || null
+        toolUsed: data.toolUsed || null,
+        locationMap: data.locationMap || (data.toolUsed?.name === 'mostrar_mapa_ubicacion' ? data.toolUsed.result : null)
       };
 
       setMessages((prev) => [...prev, botReply]);
@@ -413,6 +414,7 @@ Como ya tenemos todo tu expediente guardado, no tendrás que volver a proporcion
         onOpenSessions={() => setIsSessionsOpen(true)}
         sessionsCount={sessions.length || 1}
         onOpenConversions={() => setIsConversionsOpen(true)}
+        onOpenLocation={() => handleSendMessage('¿Dónde está ubicada la Universidad Dr. José Matías Delgado? Muéstrame el mapa de ubicación del Campus y cómo llegar.')}
       />
 
       {/* Floating Conversion Toast */}

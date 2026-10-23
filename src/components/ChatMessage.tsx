@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Message } from '../types';
 import { trackConversion } from '../services/api';
+import { CampusMapCard } from './CampusMapCard';
 import { 
   Bot, 
   User, 
@@ -162,8 +163,13 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onAskFollowUp
                 : 'bg-gradient-to-r from-[#11284f] to-[#1c3c72] text-white rounded-tr-sm'
             }`}
           >
+            {/* Campus Location Map Card */}
+            {isBot && (message.locationMap || message.toolUsed?.name === 'mostrar_mapa_ubicacion') && (
+              <CampusMapCard initialData={message.locationMap || undefined} onAskFollowUp={onAskFollowUp} />
+            )}
+
             {/* Institutional Official Profile Card when tool is used */}
-            {isBot && message.toolUsed && message.toolUsed.result && (() => {
+            {isBot && message.toolUsed && message.toolUsed.result && message.toolUsed.name !== 'mostrar_mapa_ubicacion' && message.toolUsed.result.matricula_usd !== undefined && (() => {
               const res = message.toolUsed.result;
               const carreraName = res.carrera || 'Ciencias de la Comunicación';
               return (
@@ -255,7 +261,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onAskFollowUp
                           Requisitos de Ingreso Oficiales:
                         </div>
                         <ul className="space-y-1">
-                          {res.requisitos_ingreso.map((req, rIdx) => (
+                          {res.requisitos_ingreso.map((req: string, rIdx: number) => (
                             <li key={rIdx} className="flex items-start gap-1.5 text-[11px] text-slate-700">
                               <Check className="w-3 h-3 text-emerald-600 mt-0.5 flex-shrink-0 font-bold" />
                               <span>{req}</span>

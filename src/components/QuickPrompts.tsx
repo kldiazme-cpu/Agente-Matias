@@ -1,5 +1,5 @@
 import React from 'react';
-import { DollarSign, GraduationCap, Calendar, BookOpen, Sparkles, Building2, Percent } from 'lucide-react';
+import { DollarSign, GraduationCap, Calendar, BookOpen, Sparkles, Building2, Percent, MapPin } from 'lucide-react';
 
 interface QuickPromptsProps {
   onSelectPrompt: (prompt: string) => void;
@@ -8,6 +8,12 @@ interface QuickPromptsProps {
 
 export const QuickPrompts: React.FC<QuickPromptsProps> = ({ onSelectPrompt, disabled }) => {
   const prompts = [
+    {
+      icon: MapPin,
+      label: '📍 ¿Dónde está la Universidad? (Ver Mapa)',
+      query: '¿Dónde está ubicada la Universidad Dr. José Matías Delgado y cómo puedo llegar al Campus?',
+      color: 'border-indigo-300 bg-indigo-50 text-indigo-950 font-bold hover:bg-indigo-100 shadow-xs'
+    },
     {
       icon: Sparkles,
       label: '📌 ¿Qué sigue después de registrarme?',
